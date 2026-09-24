@@ -1,9 +1,10 @@
 <?php
-// Includes/functions.php - Helper Utility Functions
+// Helper umum untuk sanitasi output, format rupiah, notifikasi, dan statistik.
 
 require_once __DIR__ . '/../config/database.php';
 
 function sanitize($data) {
+    // Normalisasi input sederhana sebelum dipakai atau ditampilkan kembali.
     return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
 }
 
@@ -19,6 +20,7 @@ function set_flash($type, $message) {
 }
 
 function display_flash() {
+    // Flash message hanya ditampilkan sekali, lalu dihapus dari session.
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
@@ -39,7 +41,7 @@ function display_flash() {
     return $output;
 }
 
-// Perhitungan Saldo Per Anggota
+// Hitung saldo bersih satu anggota: total setor dikurangi total tarik.
 function get_member_balance($member_id) {
     $pdo = get_db_connection();
     $stmt = $pdo->prepare("
@@ -54,7 +56,7 @@ function get_member_balance($member_id) {
     return (float)($res['balance'] ?? 0);
 }
 
-// Perhitungan Total Kas PKK (Seluruh Anggota)
+// Hitung saldo bersih seluruh transaksi sebagai total kas PKK.
 function get_total_kas() {
     $pdo = get_db_connection();
     $stmt = $pdo->query("

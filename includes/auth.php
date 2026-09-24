@@ -1,5 +1,5 @@
 <?php
-// Includes/auth.php - Session Management & Role Guard Middleware
+// Helper autentikasi: mengelola session, login guard, dan pembatasan role.
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -14,6 +14,7 @@ function get_logged_user() {
 }
 
 function require_login() {
+    // Halaman privat mengarahkan pengguna anonim ke login.
     if (!is_logged_in()) {
         $_SESSION['flash_error'] = "Silakan login terlebih dahulu untuk mengakses halaman tersebut.";
         header("Location: login.php");
@@ -35,6 +36,7 @@ function has_role($roles) {
 }
 
 function require_role($roles) {
+    // Setelah login, pastikan role pengguna diizinkan mengakses halaman.
     require_login();
     
     if (!has_role($roles)) {

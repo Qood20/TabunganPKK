@@ -1,10 +1,10 @@
--- Schema Database Aplikasi Keuangan & Tabungan PKK
+-- Schema utama aplikasi Tabungan PKK, termasuk tabel akun, anggota, dan transaksi.
 -- Database Name: db_tabunganpkk
 
 CREATE DATABASE IF NOT EXISTS `db_tabunganpkk` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `db_tabunganpkk`;
 
--- 1. Tabel users
+-- Hapus tabel dari tabel anak ke induk agar dapat di-import ulang dengan aman.
 DROP TABLE IF EXISTS `transactions`;
 DROP TABLE IF EXISTS `members`;
 DROP TABLE IF EXISTS `users`;
@@ -18,7 +18,7 @@ CREATE TABLE `users` (
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2. Tabel members
+-- Profil anggota dapat terhubung opsional ke akun pengguna.
 CREATE TABLE `members` (
   `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
   `user_id` BIGINT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE `members` (
   CONSTRAINT `fk_members_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. Tabel transactions
+-- Setiap transaksi menyimpan anggota pemilik dan petugas pencatat.
 CREATE TABLE `transactions` (
   `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
   `member_id` BIGINT NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE `transactions` (
   CONSTRAINT `fk_transactions_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Initial Seeders (Accounts for RBAC Testing)
+-- Data awal akun untuk pengujian pembagian hak akses (RBAC).
 -- Password Default:
 -- admin: admin123
 -- bendahara: bendahara123
@@ -54,14 +54,14 @@ INSERT INTO `users` (`id`, `username`, `password`, `role`) VALUES
 (2, 'bendahara', '$2y$10$FiK5yOd.2qUqkzn6g91KROtREFuNz0313BX8GiJaU56RMXM5NDixm', 'bendahara'),
 (3, 'member1', '$2y$10$9Wm0NiudSlhdr0NFZ0D7OecpyGgctzmHdcMjSah.yA2QCUdHkH7ES', 'member');
 
--- Initial Seeders (Members)
+-- Data awal profil anggota untuk pengujian aplikasi.
 INSERT INTO `members` (`id`, `user_id`, `name`, `phone`, `address`) VALUES
 (1, 3, 'Ibu Ani', '081234567890', 'RT 02 / RW 05, Kelurahan Mawar'),
 (2, NULL, 'Ibu Budi', '081987654321', 'RT 01 / RW 05, Kelurahan Mawar'),
 (3, NULL, 'Ibu Siti', '085678901234', 'RT 03 / RW 05, Kelurahan Mawar'),
 (4, 2, 'Bu Aisyah', '081299887766', 'RT 04 / RW 05, Kelurahan Mawar');
 
--- Initial Seeders (Transactions)
+-- Data awal mutasi setoran dan penarikan untuk dashboard/laporan.
 INSERT INTO `transactions` (`id`, `member_id`, `user_id`, `type`, `amount`, `description`, `created_at`) VALUES
 (1, 1, 2, 'setor', 500000.00, 'Setoran Wajib Awal', '2026-09-01 08:30:00'),
 (2, 1, 2, 'setor', 250000.00, 'Setoran Sukarela', '2026-09-10 10:15:00'),

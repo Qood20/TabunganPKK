@@ -267,6 +267,12 @@ Tgl        | Jenis | Nominal    | Keterangan
 
 ## 🛠️ 7. TEKNOLOGI & LINGKUNGAN PENGEMBANGAN
 
+### Catatan Implementasi
+Versi yang ada di repository ini merupakan aplikasi PHP native berbasis session dan PDO,
+dengan halaman server-rendered di root project. File `schema.sql` adalah schema beserta
+data awal yang direkomendasikan untuk instalasi baru, sedangkan `db_tabunganpkk.sql`
+merupakan dump database hasil export.
+
 | Komponen | Teknologi Yang Digunakan | Deskripsi |
 | :--- | :--- | :--- |
 | **Backend Framework** | PHP 8.x + Laravel 10+ / Node.js | Core Logic & REST API / Server Rendering |

@@ -1,12 +1,12 @@
 <?php
-// Users.php - FR-03 Manajemen User, Username, Password & Promosi Role (Khusus Admin)
+// Modul admin untuk mengelola akun, password, dan role pengguna.
 require_once __DIR__ . '/includes/header.php';
 
 require_role('admin');
 
 $pdo = get_db_connection();
 
-// Handle User Edit / Update (Username, Password, & Role)
+// Proses pembaruan akun dan cegah admin menurunkan role dirinya sendiri.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_user') {
     $target_user_id = (int)($_POST['user_id'] ?? 0);
     $new_username = sanitize($_POST['username'] ?? '');
@@ -16,13 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if ($target_user_id <= 0 || empty($new_username) || !in_array($new_role, ['admin', 'bendahara', 'member'])) {
         set_flash('error', "Data akun pengguna tidak valid!");
     } else {
-        // Cek keunikan username terhadap user lain
+        // Username baru tidak boleh bentrok dengan akun lain.
         $stmt_check = $pdo->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
         $stmt_check->execute([$new_username, $target_user_id]);
         if ($stmt_check->fetch()) {
             set_flash('error', "Username '{$new_username}' sudah digunakan oleh akun lain!");
         } else {
-            // Mencegah admin mengubah role akunnya sendiri menjadi bukan admin
+            // Admin aktif harus tetap memiliki akses admin setelah menyimpan form.
             if ($target_user_id === $user['id'] && $new_role !== 'admin') {
                 set_flash('error', "Anda tidak dapat mengubah role akun Anda sendiri menjadi non-admin!");
             } else {
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     set_flash('success', "Akun <strong>{$new_username}</strong> (Username & Role) berhasil diperbarui!");
                 }
 
-                // Jika admin mengedit username/role akunnya sendiri, perbarui session
+                // Sinkronkan session jika akun yang diedit adalah akun yang sedang login.
                 if ($target_user_id === $user['id']) {
                     $_SESSION['user']['username'] = $new_username;
                     $_SESSION['user']['role'] = $new_role;
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit();
 }
 
-// Fetch all users with associated member profiles if available
+// Gabungkan akun dengan profil anggota agar relasi yang belum terhubung terlihat.
 $stmt = $pdo->query("
     SELECT u.id, u.username, u.role, u.created_at, m.name AS member_name, m.phone
     FROM users u
@@ -60,7 +60,7 @@ $stmt = $pdo->query("
 ");
 $users_list = $stmt->fetchAll();
 
-// Check if edit mode requested
+// Muat data akun untuk mengisi form edit jika parameter tersedia.
 $edit_user_data = null;
 if (isset($_GET['edit'])) {
     $edit_id = (int)$_GET['edit'];

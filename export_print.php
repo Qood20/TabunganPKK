@@ -1,5 +1,5 @@
 <?php
-// Export_print.php - Printable Laporan PDF/Print View
+// Export laporan terfilter dalam tampilan cetak browser atau simpan sebagai PDF.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
 
@@ -12,6 +12,7 @@ $end_date = sanitize($_GET['end_date'] ?? date('Y-m-d'));
 $member_id = isset($_GET['member_id']) && $_GET['member_id'] !== '' ? (int)$_GET['member_id'] : null;
 $type = sanitize($_GET['type'] ?? 'all');
 
+// Bangun kondisi filter menggunakan parameter terikat untuk mencegah injeksi SQL.
 $where = ["DATE(t.created_at) BETWEEN ? AND ?"];
 $params = [$start_date, $end_date];
 
@@ -38,6 +39,7 @@ $stmt = $pdo->prepare("
 $stmt->execute($params);
 $report_data = $stmt->fetchAll();
 
+// Ringkas total transaksi yang akan dicetak.
 $total_setor = 0;
 $total_tarik = 0;
 foreach ($report_data as $row) {

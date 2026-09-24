@@ -1,5 +1,5 @@
 <?php
-// Login.php - FR-02 Login & Authentication
+// Halaman login dan autentikasi pengguna berdasarkan username serta password.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
 
@@ -11,6 +11,7 @@ if (is_logged_in()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Bersihkan username, lalu validasi kredensial terhadap data pengguna.
     $username = sanitize($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
@@ -23,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
+            // Simpan data minimum pengguna ke session untuk kebutuhan otorisasi.
             $_SESSION['user'] = [
                 'id' => $user['id'],
                 'username' => $user['username'],

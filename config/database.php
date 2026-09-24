@@ -1,5 +1,5 @@
 <?php
-// Config/database.php - Koneksi Database PDO
+// Konfigurasi kredensial dan factory koneksi PDO tunggal untuk seluruh aplikasi.
 
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
@@ -8,6 +8,7 @@ define('DB_NAME', 'db_tabunganpkk');
 define('DB_CHARSET', 'utf8mb4');
 
 function get_db_connection() {
+    // Reuse koneksi selama satu request agar tidak membuka koneksi berulang.
     static $pdo = null;
     
     if ($pdo === null) {

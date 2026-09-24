@@ -1,4 +1,4 @@
-/* Assets/css/style.css - Modern Premium Design System */
+/* Sistem desain global: token warna, layout responsif, komponen form, tabel, dan cetak. */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -54,7 +54,7 @@ a:hover {
   color: var(--primary-hover);
 }
 
-/* Layout Setup */
+/* Layout aplikasi utama: navbar, sidebar, dan area konten. */
 .app-container {
   display: flex;
   flex: 1;
@@ -193,7 +193,7 @@ a:hover {
   margin-top: 0.25rem;
 }
 
-/* Cards & Grid System */
+/* Komponen kartu statistik dan grid konten. */
 .grid-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -252,7 +252,7 @@ a:hover {
   margin-top: 0.25rem;
 }
 
-/* Forms & Inputs */
+/* Komponen input dan pilihan jenis transaksi. */
 .form-group {
   margin-bottom: 1.25rem;
 }
@@ -307,7 +307,7 @@ a:hover {
   color: var(--primary);
 }
 
-/* Buttons */
+/* Variasi tombol aksi utama, sekunder, bahaya, dan ukuran kecil. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -357,7 +357,7 @@ a:hover {
   border-radius: var(--radius-sm);
 }
 
-/* Table Styling */
+/* Tabel data dengan dukungan scroll horizontal di layar kecil. */
 .table-responsive {
   width: 100%;
   overflow-x: auto;

@@ -1,5 +1,5 @@
 <?php
-// Export_excel.php - CSV / Excel Export Handler
+// Export laporan transaksi terfilter dalam format CSV yang dapat dibuka Excel.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
 
@@ -12,6 +12,7 @@ $end_date = sanitize($_GET['end_date'] ?? date('Y-m-d'));
 $member_id = isset($_GET['member_id']) && $_GET['member_id'] !== '' ? (int)$_GET['member_id'] : null;
 $type = sanitize($_GET['type'] ?? 'all');
 
+// Gunakan filter yang sama dengan halaman laporan agar hasil export konsisten.
 $where = ["DATE(t.created_at) BETWEEN ? AND ?"];
 $params = [$start_date, $end_date];
 
@@ -45,10 +46,10 @@ header('Content-Disposition: attachment; filename=' . $filename);
 
 $output = fopen('php://output', 'w');
 
-// Add UTF-8 BOM for Excel compatibility
+// BOM membantu Excel mengenali karakter UTF-8, termasuk nama beraksara khusus.
 fputs($output, "\xEF\xBB\xBF");
 
-// CSV Header
+// Tulis judul kolom sebelum baris data transaksi.
 fputcsv($output, ['No', 'Tanggal', 'Waktu', 'Nama Anggota', 'Jenis Transaksi', 'Nominal (Rp)', 'Keterangan', 'Petugas']);
 
 $no = 1;

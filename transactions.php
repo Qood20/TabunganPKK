@@ -1,12 +1,12 @@
 <?php
-// Transactions.php - FR-05 & FR-06 Input Transaksi & Validasi Penarikan Saldo (Admin & Bendahara)
+// Modul transaksi: mencatat setor/tarik dan menolak penarikan melebihi saldo.
 require_once __DIR__ . '/includes/header.php';
 
 require_role(['admin', 'bendahara']);
 
 $pdo = get_db_connection();
 
-// Handle New Transaction / Delete
+// Tangani pembuatan dan penghapusan transaksi melalui POST.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($member_id <= 0 || !in_array($type, ['setor', 'tarik']) || $amount < 1000) {
             set_flash('error', "Input transaksi tidak valid! Nominal minimal Rp 1.000.");
         } else {
-            // Check member existence
+            // Pastikan anggota tujuan masih tersedia sebelum menyimpan transaksi.
             $stmt_m = $pdo->prepare("SELECT name FROM members WHERE id = ?");
             $stmt_m->execute([$member_id]);
             $member_data = $stmt_m->fetch();
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$member_data) {
                 set_flash('error', "Anggota tidak ditemukan!");
             } else {
-                // FR-06: VALIDASI PENARIKAN SALDO
+                // FR-06: saldo harus cukup sebelum penarikan dicatat.
                 if ($type === 'tarik') {
                     $current_balance = get_member_balance($member_id);
                     if ($amount > $current_balance) {
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
-                // Simpan Transaksi
+                // Simpan petugas dari session agar setiap transaksi dapat diaudit.
                 $stmt_ins = $pdo->prepare("
                     INSERT INTO transactions (member_id, user_id, type, amount, description) 
                     VALUES (?, ?, ?, ?, ?)
@@ -65,11 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch all active members for dropdown select
+// Data anggota digunakan sebagai pilihan pada form transaksi.
 $stmt_members = $pdo->query("SELECT id, name FROM members ORDER BY name ASC");
 $members_list = $stmt_members->fetchAll();
 
-// Fetch transaction history
+// Riwayat ditampilkan dari yang paling baru agar mudah dipantau.
 $stmt_history = $pdo->query("
     SELECT t.*, m.name AS member_name, u.username AS petugas_name
     FROM transactions t

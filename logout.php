@@ -1,9 +1,10 @@
 <?php
-// Logout.php - Session destruction
+// Keluar dari aplikasi dengan menghapus session dan cookie session pengguna.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
 
 $_SESSION = array();
+// Hapus cookie session sebelum menghancurkan data session di server.
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,

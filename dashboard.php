@@ -1,16 +1,16 @@
 <?php
-// Dashboard.php - FR-07 Dashboard Statistik Dinamis
+// Dashboard pengurus: menampilkan statistik kas dan lima transaksi terbaru.
 require_once __DIR__ . '/includes/header.php';
 
 $role = $user['role'];
 
-// If role is member, display member dashboard
+// Member memiliki dashboard khusus yang hanya menampilkan tabungannya sendiri.
 if ($role === 'member') {
     header("Location: my_savings.php");
     exit();
 }
 
-// Stats for Admin & Bendahara
+// Statistik agregat untuk admin dan bendahara.
 $total_kas = get_total_kas();
 $setoran_bulan_ini = get_monthly_deposits();
 $penarikan_bulan_ini = get_monthly_withdrawals();
@@ -18,7 +18,7 @@ $total_anggota = get_active_members_count();
 
 $pdo = get_db_connection();
 
-// Recent 5 Transactions
+// Ambil aktivitas terbaru untuk ringkasan dashboard.
 $stmt_recent = $pdo->query("
     SELECT t.*, m.name AS member_name
     FROM transactions t
@@ -39,7 +39,7 @@ $recent_transactions = $stmt_recent->fetchAll();
     </div>
 </div>
 
-<!-- Stat Cards Overview -->
+<!-- Ringkasan angka utama kas dan anggota. -->
 <div class="grid-cards">
     <div class="card stat-card">
         <div class="stat-icon icon-teal">💰</div>
@@ -74,7 +74,7 @@ $recent_transactions = $stmt_recent->fetchAll();
     </div>
 </div>
 
-<!-- Recent Activity & Quick Action Card -->
+<!-- Aktivitas terbaru dan tautan aksi yang sering digunakan. -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
     
     <div class="card" style="grid-column: span 2;">

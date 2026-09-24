@@ -1,5 +1,5 @@
 <?php
-// Includes/header.php - Responsive Navigation & Sidebar
+// Layout pembuka halaman privat: autentikasi, navigasi, dan konten utama.
 
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/functions.php';
@@ -18,7 +18,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 </head>
 <body>
 
-    <!-- Top Navigation Bar -->
+    <!-- Navigasi atas dan identitas pengguna aktif. -->
     <header class="navbar">
         <div class="navbar-brand">
             <span class="logo-icon">💰</span>
@@ -34,7 +34,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </header>
 
     <div class="app-container">
-        <!-- Sidebar Navigation -->
+        <!-- Menu sidebar disaring berdasarkan role pengguna. -->
         <aside class="sidebar">
             <ul class="sidebar-menu">
                 <li>
@@ -77,6 +77,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </ul>
         </aside>
 
-        <!-- Main Content Body -->
+        <!-- Halaman pemanggil menyisipkan konten di area ini. -->
         <main class="main-content">
             <?= display_flash() ?>

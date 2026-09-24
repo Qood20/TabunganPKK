@@ -1,7 +1,7 @@
-// Assets/js/main.js - Interactive UI Script
+// Interaksi global UI: konfirmasi penghapusan dan toggle sidebar mobile.
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Confirm delete prompts
+    // Tahan submit jika pengguna membatalkan konfirmasi penghapusan.
     const deleteButtons = document.querySelectorAll('.btn-confirm-delete');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Mobile sidebar toggle if exists
+    // Aktifkan menu sidebar mobile jika tombol toggle tersedia pada layout.
     const menuToggle = document.getElementById('menu-toggle');
     const sidebar = document.querySelector('.sidebar');
     if (menuToggle && sidebar) {

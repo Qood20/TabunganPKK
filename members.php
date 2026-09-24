@@ -1,12 +1,12 @@
 <?php
-// Members.php - FR-04 Master Data Anggota (Admin & Bendahara)
+// Modul master anggota: CRUD profil, tautan akun, dan perhitungan saldo.
 require_once __DIR__ . '/includes/header.php';
 
 require_role(['admin', 'bendahara']);
 
 $pdo = get_db_connection();
 
-// Handle Form Submissions (Create / Update / Delete)
+// Proses aksi CRUD dikirim melalui POST, lalu kembali ke halaman daftar.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch members list with total balance
+// Ambil daftar anggota sekaligus saldo bersih dari seluruh transaksi.
 $stmt = $pdo->query("
     SELECT m.*, u.username,
         (COALESCE((SELECT SUM(amount) FROM transactions WHERE member_id = m.id AND type = 'setor'), 0) -
@@ -68,11 +68,11 @@ $stmt = $pdo->query("
 ");
 $members = $stmt->fetchAll();
 
-// Fetch unlinked users for dropdown select option
+// Hanya akun member yang tersedia untuk ditautkan ke profil anggota.
 $stmt_users = $pdo->query("SELECT id, username FROM users WHERE role = 'member'");
 $available_users = $stmt_users->fetchAll();
 
-// Check if edit mode requested
+// Isi form dengan data anggota ketika URL meminta mode edit.
 $edit_member = null;
 if (isset($_GET['edit'])) {
     $edit_id = (int)$_GET['edit'];

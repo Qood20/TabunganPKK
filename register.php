@@ -1,5 +1,5 @@
 <?php
-// Register.php - FR-01 Registration (Self-Register)
+// Halaman pendaftaran mandiri: membuat akun member dan profil anggota terkait.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
 
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $pdo = get_db_connection();
 
-        // Cek keunikan username
+        // Username harus unik agar dapat digunakan sebagai identitas login.
         $stmt_check = $pdo->prepare("SELECT id FROM users WHERE username = ?");
         $stmt_check->execute([$username]);
         if ($stmt_check->fetch()) {
@@ -31,13 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pdo->beginTransaction();
 
-                // 1. Insert ke tabel users (role otomatis 'member')
+                // Buat akun dan profil dalam satu transaksi database.
+                // Role pendaftar selalu member dan tidak dapat dipilih dari form.
                 $hashed_password = password_hash($password, PASSWORD_BCRYPT);
                 $stmt_user = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, 'member')");
                 $stmt_user->execute([$username, $hashed_password]);
                 $user_id = $pdo->lastInsertId();
 
-                // 2. Insert ke tabel members
                 $stmt_member = $pdo->prepare("INSERT INTO members (user_id, name, phone, address) VALUES (?, ?, ?, ?)");
                 $stmt_member->execute([$user_id, $name, $phone, $address]);
 

@@ -1,12 +1,12 @@
 <?php
-// My_savings.php - Tabungan Saya (Khusus Role Member)
+// Dashboard member: menampilkan saldo, total mutasi, dan riwayat pribadi.
 require_once __DIR__ . '/includes/header.php';
 
 require_role('member');
 
 $pdo = get_db_connection();
 
-// Find member record linked to this logged-in user
+// Profil anggota dicari melalui user_id dari session, bukan dari parameter URL.
 $stmt_member = $pdo->prepare("SELECT * FROM members WHERE user_id = ?");
 $stmt_member->execute([$user['id']]);
 $member = $stmt_member->fetch();
@@ -19,7 +19,7 @@ $transactions = [];
 if ($member) {
     $balance = get_member_balance($member['id']);
 
-    // Total setor & tarik pribadi
+    // Hitung total setoran dan penarikan untuk profil yang sedang login.
     $stmt_sum = $pdo->prepare("
         SELECT 
             COALESCE(SUM(CASE WHEN type = 'setor' THEN amount ELSE 0 END), 0) AS total_setor,
@@ -32,7 +32,7 @@ if ($member) {
     $total_setor = (float)$sum_res['total_setor'];
     $total_tarik = (float)$sum_res['total_tarik'];
 
-    // Mutasi transaksi pribadi
+    // Ambil hanya transaksi milik anggota tersebut.
     $stmt_history = $pdo->prepare("
         SELECT t.*, u.username AS petugas_name
         FROM transactions t
@@ -59,7 +59,7 @@ if ($member) {
     </div>
 <?php else: ?>
 
-    <!-- Stat Cards Member -->
+    <!-- Ringkasan saldo dan total mutasi member. -->
     <div class="grid-cards">
         <div class="card stat-card">
             <div class="stat-icon icon-teal">💰</div>
@@ -86,7 +86,7 @@ if ($member) {
         </div>
     </div>
 
-    <!-- Mutasi History Card -->
+    <!-- Detail riwayat transaksi pribadi. -->
     <div class="card" style="margin-top: 1.5rem;">
         <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem;">📜 Riwayat Mutasi Transaksi Pribadi</h2>
 

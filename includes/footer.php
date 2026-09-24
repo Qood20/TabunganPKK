@@ -1,5 +1,5 @@
 <?php
-// Includes/footer.php - Footer layout & JS scripts
+// Layout penutup: menutup area konten dan memuat interaksi JavaScript global.
 ?>
         </main>
     </div>

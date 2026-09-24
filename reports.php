@@ -1,18 +1,18 @@
 <?php
-// Reports.php - FR-08 Cetak Laporan (Filter Date Range & Export)
+// Modul laporan: filter transaksi dan menyediakan tampilan cetak serta CSV.
 require_once __DIR__ . '/includes/header.php';
 
 require_role(['admin', 'bendahara']);
 
 $pdo = get_db_connection();
 
-// Filter parameters
+// Baca filter dari query string dengan periode bulan berjalan sebagai default.
 $start_date = sanitize($_GET['start_date'] ?? date('Y-m-01'));
 $end_date = sanitize($_GET['end_date'] ?? date('Y-m-d'));
 $member_id = isset($_GET['member_id']) && $_GET['member_id'] !== '' ? (int)$_GET['member_id'] : null;
 $type = sanitize($_GET['type'] ?? 'all');
 
-// Build query
+// Susun kondisi query secara bertahap agar filter anggota dan jenis opsional.
 $where = ["DATE(t.created_at) BETWEEN ? AND ?"];
 $params = [$start_date, $end_date];
 
@@ -39,7 +39,7 @@ $stmt = $pdo->prepare("
 $stmt->execute($params);
 $report_data = $stmt->fetchAll();
 
-// Calculate totals for report
+// Hitung ringkasan setoran, penarikan, dan saldo bersih dari hasil filter.
 $total_setor = 0;
 $total_tarik = 0;
 foreach ($report_data as $row) {
@@ -51,7 +51,7 @@ foreach ($report_data as $row) {
 }
 $net_total = $total_setor - $total_tarik;
 
-// Members dropdown for filter
+// Daftar anggota dipakai untuk pilihan filter laporan.
 $members_list = $pdo->query("SELECT id, name FROM members ORDER BY name ASC")->fetchAll();
 ?>
 
@@ -62,7 +62,7 @@ $members_list = $pdo->query("SELECT id, name FROM members ORDER BY name ASC")->f
     </div>
 </div>
 
-<!-- Filter Card -->
+<!-- Form filter periode, anggota, dan jenis transaksi. -->
 <div class="card" style="margin-bottom: 2rem;">
     <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">🔍 Filter Laporan</h2>
 
@@ -106,7 +106,7 @@ $members_list = $pdo->query("SELECT id, name FROM members ORDER BY name ASC")->f
     </form>
 </div>
 
-<!-- Report Summary & Preview Card -->
+<!-- Ringkasan dan preview data yang akan diekspor. -->
 <div class="card">
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
         <div>
