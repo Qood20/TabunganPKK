@@ -83,7 +83,7 @@ Aplikasi ini mendefinisikan **3 Peran Utama** pengguna dengan hak akses sebagai 
 #### 👤 `FR-04` Master Data Anggota
 * **Akses:** `Admin` & `Bendahara`.
 * **Fitur Utama:**
-  * **Create:** Menambah data anggota baru (jika tidak melalui pendaftaran mandiri).
+  * **Create:** Admin atau bendahara dapat menambah anggota sekaligus membuat akun `member` baru.
   * **Read:** Melihat daftar anggota lengkap beserta status akun dan akumulasi total saldo tabungan.
   * **Update:** Memperbarui informasi data profil anggota (Nama, No. HP, Alamat).
   * **Delete:** Menghapus atau menonaktifkan status anggota.

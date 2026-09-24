@@ -1,5 +1,5 @@
 <?php
-// Modul master anggota: CRUD profil, tautan akun, dan perhitungan saldo.
+// Modul master anggota: CRUD profil, pembuatan akun member, dan perhitungan saldo.
 require_once __DIR__ . '/includes/header.php';
 
 require_role(['admin', 'bendahara']);
@@ -12,16 +12,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'create') {
         $name = sanitize($_POST['name'] ?? '');
+        $username = sanitize($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
         $phone = sanitize($_POST['phone'] ?? '');
         $address = sanitize($_POST['address'] ?? '');
-        $user_id = !empty($_POST['user_id']) ? (int)$_POST['user_id'] : null;
 
-        if (empty($name)) {
-            set_flash('error', "Nama anggota wajib diisi!");
+        if (empty($name) || empty($username) || empty($password)) {
+            set_flash('error', "Nama anggota, username, dan password wajib diisi!");
+        } elseif (strlen($password) < 6) {
+            set_flash('error', "Password akun member minimal 6 karakter!");
         } else {
-            $stmt = $pdo->prepare("INSERT INTO members (user_id, name, phone, address) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$user_id, $name, $phone, $address]);
-            set_flash('success', "Anggota baru <strong>{$name}</strong> berhasil ditambahkan!");
+            // Pastikan username belum dipakai oleh akun lain.
+            $stmt_check = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+            $stmt_check->execute([$username]);
+
+            if ($stmt_check->fetch()) {
+                set_flash('error', "Username '{$username}' sudah digunakan, silakan pilih username lain!");
+            } else {
+                try {
+                    // Akun dan profil harus berhasil dibuat bersama-sama.
+                    $pdo->beginTransaction();
+
+                    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+                    $stmt_user = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, 'member')");
+                    $stmt_user->execute([$username, $hashed_password]);
+                    $user_id = $pdo->lastInsertId();
+
+                    $stmt_member = $pdo->prepare("INSERT INTO members (user_id, name, phone, address) VALUES (?, ?, ?, ?)");
+                    $stmt_member->execute([$user_id, $name, $phone, $address]);
+
+                    $pdo->commit();
+                    set_flash('success', "Anggota <strong>{$name}</strong> berhasil ditambahkan dengan akun <strong>{$username}</strong>.");
+                } catch (Throwable $e) {
+                    if ($pdo->inTransaction()) {
+                        $pdo->rollBack();
+                    }
+                    set_flash('error', "Gagal menambahkan anggota dan akun: " . $e->getMessage());
+                }
+            }
         }
         header("Location: members.php");
         exit();
@@ -68,10 +96,6 @@ $stmt = $pdo->query("
 ");
 $members = $stmt->fetchAll();
 
-// Hanya akun member yang tersedia untuk ditautkan ke profil anggota.
-$stmt_users = $pdo->query("SELECT id, username FROM users WHERE role = 'member'");
-$available_users = $stmt_users->fetchAll();
-
 // Isi form dengan data anggota ketika URL meminta mode edit.
 $edit_member = null;
 if (isset($_GET['edit'])) {
@@ -108,6 +132,18 @@ if (isset($_GET['edit'])) {
                 <input type="text" name="name" id="name" class="form-control" placeholder="Contoh: Ibu Ani Rahmawati" value="<?= htmlspecialchars($edit_member['name'] ?? '') ?>" required>
             </div>
 
+            <?php if (!$edit_member): ?>
+            <div class="form-group">
+                <label for="username" class="form-label">Username Akun *</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="Username untuk login" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password Akun *</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Minimal 6 karakter" minlength="6" required>
+            </div>
+            <?php endif; ?>
+
             <div class="form-group">
                 <label for="phone" class="form-label">No. Telepon / WhatsApp</label>
                 <input type="text" name="phone" id="phone" class="form-control" placeholder="Contoh: 081234567890" value="<?= htmlspecialchars($edit_member['phone'] ?? '') ?>">
@@ -116,19 +152,6 @@ if (isset($_GET['edit'])) {
             <div class="form-group">
                 <label for="address" class="form-label">Alamat Lengkap / RT</label>
                 <textarea name="address" id="address" class="form-control" rows="2" placeholder="Contoh: RT 02 / RW 05"><?= htmlspecialchars($edit_member['address'] ?? '') ?></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="user_id" class="form-label">Tautkan Akun User (Opsional)</label>
-                <select name="user_id" id="user_id" class="form-control">
-                    <option value="">-- Tanpa Akun User --</option>
-                    <?php foreach ($available_users as $u): ?>
-                        <option value="<?= $u['id'] ?>" <?= ($edit_member && $edit_member['user_id'] == $u['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($u['username']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <small style="color: var(--text-muted); font-size: 0.8rem;">Tautkan jika anggota sudah membuat akun mandiri.</small>
             </div>
 
             <div style="display: flex; gap: 0.5rem;">
