@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/functions.php';
 require_role(['admin', 'bendahara']);
 
 $pdo = get_db_connection();
+$user = get_logged_user();
 
 $start_date = sanitize($_GET['start_date'] ?? date('Y-m-01'));
 $end_date = sanitize($_GET['end_date'] ?? date('Y-m-d'));

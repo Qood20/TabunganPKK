@@ -176,7 +176,7 @@ if (isset($_GET['edit'])) {
                                 <?php if ($m['username']): ?>
                                     <span class="user-badge badge-role-member">👤 <?= htmlspecialchars($m['username']) ?></span>
                                 <?php else: ?>
-                                    <span class="text-muted" style="font-size: 0.85rem; italic;">(Belum ada)</span>
+                                    <span class="text-muted" style="font-size: 0.85rem; font-style: italic;">(Belum ada)</span>
                                 <?php endif; ?>
                             </td>
                             <td>
